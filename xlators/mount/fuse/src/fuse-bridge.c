@@ -3364,7 +3364,8 @@ fuse_setxattr (xlator_t *this, fuse_in_header_t *finh, void *msg,
                 goto done;
         }
 
-        if (!priv->acl) {
+        // MTM: Disable blocking of XAttrs to enable Security Attrs support for backing SYSVOL in Samba 
+        /* if (!priv->acl) {
                 if ((strcmp (name, POSIX_ACL_ACCESS_XATTR) == 0) ||
                     (strcmp (name, POSIX_ACL_DEFAULT_XATTR) == 0)) {
                         op_errno = EOPNOTSUPP;
@@ -3376,7 +3377,7 @@ fuse_setxattr (xlator_t *this, fuse_in_header_t *finh, void *msg,
         if (ret) {
                 op_errno = EOPNOTSUPP;
                 goto done;
-        }
+        } */
 
         /* Check if the command is for changing the log
            level of process or specific xlator */
@@ -3697,7 +3698,8 @@ fuse_getxattr (xlator_t *this, fuse_in_header_t *finh, void *msg,
         }
 #endif
 
-        if (!priv->acl) {
+        // MTM: Disable blocking of XAttrs to enable Security Attrs support for backing SYSVOL in Samba 
+        /* if (!priv->acl) {
                 if ((strcmp (name, POSIX_ACL_ACCESS_XATTR) == 0) ||
                     (strcmp (name, POSIX_ACL_DEFAULT_XATTR) == 0)) {
                         op_errno = ENOTSUP;
@@ -3709,7 +3711,7 @@ fuse_getxattr (xlator_t *this, fuse_in_header_t *finh, void *msg,
         if (ret) {
                 op_errno = ENODATA;
                 goto err;
-        }
+        } */
 
         fuse_resolve_inode_init (state, &state->resolve, finh->nodeid);
 
