@@ -4129,18 +4129,22 @@ fuse_setxattr(xlator_t *this, fuse_in_header_t *finh, void *msg,
         goto done;
     }
 
-    if (!priv->acl) {
-        if ((strcmp(name, POSIX_ACL_ACCESS_XATTR) == 0) ||
-            (strcmp(name, POSIX_ACL_DEFAULT_XATTR) == 0)) {
+    /* Allow xattr passthrough if the option is enabled, otherwise apply
+       restrictions for ACLs and SELinux xattrs */
+    if (!priv->xattr_passthrough) {
+        if (!priv->acl) {
+            if ((strcmp(name, POSIX_ACL_ACCESS_XATTR) == 0) ||
+                (strcmp(name, POSIX_ACL_DEFAULT_XATTR) == 0)) {
+                op_errno = EOPNOTSUPP;
+                goto done;
+            }
+        }
+
+        ret = fuse_check_selinux_cap_xattr(priv, name);
+        if (ret) {
             op_errno = EOPNOTSUPP;
             goto done;
         }
-    }
-
-    ret = fuse_check_selinux_cap_xattr(priv, name);
-    if (ret) {
-        op_errno = EOPNOTSUPP;
-        goto done;
     }
 
     /* Check if the command is for changing the log
@@ -4477,18 +4481,22 @@ fuse_getxattr(xlator_t *this, fuse_in_header_t *finh, void *msg,
     }
 #endif
 
-    if (!priv->acl) {
-        if ((strcmp(name, POSIX_ACL_ACCESS_XATTR) == 0) ||
-            (strcmp(name, POSIX_ACL_DEFAULT_XATTR) == 0)) {
-            op_errno = ENOTSUP;
+    /* Allow xattr passthrough if the option is enabled, otherwise apply
+       restrictions for ACLs and SELinux xattrs */
+    if (!priv->xattr_passthrough) {
+        if (!priv->acl) {
+            if ((strcmp(name, POSIX_ACL_ACCESS_XATTR) == 0) ||
+                (strcmp(name, POSIX_ACL_DEFAULT_XATTR) == 0)) {
+                op_errno = ENOTSUP;
+                goto err;
+            }
+        }
+
+        ret = fuse_check_selinux_cap_xattr(priv, name);
+        if (ret) {
+            op_errno = ENODATA;
             goto err;
         }
-    }
-
-    ret = fuse_check_selinux_cap_xattr(priv, name);
-    if (ret) {
-        op_errno = ENODATA;
-        goto err;
     }
 
     fuse_resolve_inode_init(state, &state->resolve, finh->nodeid);
@@ -6792,6 +6800,9 @@ init(xlator_t *this_xl)
 
     GF_OPTION_INIT("selinux", priv->selinux, bool, cleanup_exit);
 
+    GF_OPTION_INIT("xattr-passthrough", priv->xattr_passthrough, bool,
+                   cleanup_exit);
+
     GF_OPTION_INIT("capability", priv->capability, bool, cleanup_exit);
 
     GF_OPTION_INIT("read-only", priv->read_only, bool, cleanup_exit);
@@ -7107,6 +7118,12 @@ struct volume_options options[] = {
      .default_value = "false"},
     {.key = {"acl"}, .type = GF_OPTION_TYPE_BOOL, .default_value = "false"},
     {.key = {"selinux"}, .type = GF_OPTION_TYPE_BOOL, .default_value = "false"},
+    {.key = {"xattr-passthrough"},
+     .type = GF_OPTION_TYPE_BOOL,
+     .default_value = "false",
+     .description = "Enable passthrough of extended attributes (xattrs) "
+                    "on the fuse mount, allowing user and system xattrs "
+                    "to be set and retrieved (for POSIX ACLs, SELinux, etc)."},
     {.key = {"enable-ino32"},
      .type = GF_OPTION_TYPE_BOOL,
      .default_value = "false"},

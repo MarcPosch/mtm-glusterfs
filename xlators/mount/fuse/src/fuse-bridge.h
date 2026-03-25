@@ -98,6 +98,7 @@ struct fuse_private {
     unsigned uid_map_root;
     gf_boolean_t acl;
     gf_boolean_t selinux;
+    gf_boolean_t xattr_passthrough;
     gf_boolean_t read_only;
     int32_t fopen_keep_cache;
     time_t gid_cache_timeout;
