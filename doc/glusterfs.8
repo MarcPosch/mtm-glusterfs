@@ -81,6 +81,12 @@ Mount the file system in 'read-only' mode.
 \fB\-\-selinux\fR
 Enable SELinux label (extended attributes) support on inodes.
 .TP
+\fB\-\-xattr\-passthrough[=BOOL]\fR
+Enable passthrough of extended attributes (xattrs), allowing user and system
+xattrs to be set and retrieved. This is useful for POSIX ACLs, SELinux, and
+other use cases requiring extended attribute support (e.g., Samba SYSVOL
+backing). (the default is off).
+.TP
 \fB\-S, \fB\-\-socket\-file=SOCKFILE\fR
 File to use as unix-socket.
 .TP

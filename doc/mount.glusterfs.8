@@ -66,6 +66,12 @@ Enable internal memory accounting
 \fBcapability
 Enable file capability setting and retrival
 .TP
+\fBxattr-passthrough[=BOOL]
+Enable passthrough of extended attributes (xattrs) on the fuse mount, allowing
+user and system xattrs to be set and retrieved. This is useful for POSIX ACLs,
+SELinux, and other use cases requiring extended attribute support
+(e.g., Samba SYSVOL backing). [default: false]
+.TP
 \fBthin-client
 Enables thin mount and connects via gfproxyd daemon
 .TP
