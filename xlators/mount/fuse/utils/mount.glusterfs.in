@@ -166,6 +166,10 @@ start_glusterfs ()
          cmd_line=$(echo "$cmd_line --selinux");
     fi
 
+    if [ -n "$xattr_passthrough" ]; then
+         cmd_line=$(echo "$cmd_line --xattr-passthrough=$xattr_passthrough");
+    fi
+
     if [ -n "$enable_ino32" ]; then
         cmd_line=$(echo "$cmd_line --enable-ino32");
     fi
@@ -645,6 +649,9 @@ with_options()
             process_name=$value
             ;;
         # Values that are optional
+        "xattr-passthrough")
+            xattr_passthrough="$value"
+            ;;
         "fopen-keep-cache")
             fopen_keep_cache="$value"
             ;;
@@ -674,6 +681,9 @@ without_options()
             ;;
         "selinux")
             selinux=1
+            ;;
+        "xattr-passthrough")
+            xattr_passthrough="true"
             ;;
         "worm")
             worm=1

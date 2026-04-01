@@ -158,6 +158,10 @@ start_glusterfs ()
          cmd_line=$(echo "$cmd_line --selinux");
     fi
 
+    if [ -n "$xattr_passthrough" ]; then
+         cmd_line=$(echo "$cmd_line --xattr-passthrough=$xattr_passthrough");
+    fi
+
     if [ -n "$enable_ino32" ]; then
         cmd_line=$(echo "$cmd_line --enable-ino32");
     fi
@@ -420,6 +424,9 @@ with_options()
         "process-name")
             process_name=$value
             ;;
+        "xattr-passthrough")
+            xattr_passthrough="$value"
+            ;;
         *)
             warn "Invalid option: $key"
             exit 1
@@ -440,6 +447,9 @@ without_options()
             ;;
         "selinux")
             selinux=1
+            ;;
+        "xattr-passthrough")
+            xattr_passthrough="true"
             ;;
         "worm")
             worm=1
