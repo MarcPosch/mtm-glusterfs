@@ -511,6 +511,7 @@ struct _cmd_args {
     int read_only;
     int acl;
     int selinux;
+    int xattr_passthrough;
     int capability;
     int enable_ino32;
     int worm;

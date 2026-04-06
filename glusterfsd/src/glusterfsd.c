@@ -133,6 +133,10 @@ static struct argp_option gf_options[] = {
     {"acl", ARGP_ACL_KEY, 0, 0, "Mount the filesystem with POSIX ACL support"},
     {"selinux", ARGP_SELINUX_KEY, 0, 0,
      "Enable SELinux label (extended attributes) support on inodes"},
+    {"xattr-passthrough", ARGP_XATTR_PASSTHROUGH_KEY, "BOOL", OPTION_ARG_OPTIONAL,
+     "Enable passthrough of extended attributes (xattrs), allowing user and system "
+     "xattrs to be set and retrieved. This is useful for POSIX ACLs, SELinux, and "
+     "other use cases requiring extended attribute support (e.g., Samba SYSVOL backing)"},
     {"capability", ARGP_CAPABILITY_KEY, 0, 0,
      "Enable Capability (extended attributes) support on inodes"},
     {"subdir-mount", ARGP_SUBDIR_MOUNT_KEY, "SUBDIR-PATH", 0,
@@ -379,6 +383,11 @@ set_fuse_mount_options(glusterfs_ctx_t *ctx, dict_t *options)
 
     if (cmd_args->selinux) {
         DICT_SET_VAL(dict_set_static_ptr, options, "selinux", "on",
+                     glusterfsd_msg_3);
+    }
+
+    if (cmd_args->xattr_passthrough) {
+        DICT_SET_VAL(dict_set_static_ptr, options, "xattr-passthrough", "on",
                      glusterfsd_msg_3);
     }
 
@@ -788,6 +797,19 @@ parse_opts(int key, char *arg, struct argp_state *state)
         case ARGP_SELINUX_KEY:
             cmd_args->selinux = 1;
             gf_remember_xlator_option("*-md-cache.cache-selinux=true");
+            break;
+
+        case ARGP_XATTR_PASSTHROUGH_KEY:
+            if (!arg)
+                arg = "on";
+
+            if (gf_string2boolean(arg, &b) == 0) {
+                cmd_args->xattr_passthrough = b;
+                break;
+            }
+
+            argp_failure(state, -1, 0, "invalid value \"%s\" for xattr-passthrough",
+                         arg);
             break;
 
         case ARGP_CAPABILITY_KEY:
